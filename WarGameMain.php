@@ -2,5 +2,7 @@
 
 require_once('WarGame.php');
 
-$game = new WarGame('田中');
+$game = new WarGame();
+$game->registerPlayers('player1', 'player2');
 $game->start();
+$game->playRound();
