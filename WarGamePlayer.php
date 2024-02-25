@@ -3,45 +3,58 @@
 require_once('WarGameDeck.php');
 require_once('WarGameCard.php');
 require_once('WarGame.php');
+require_once('WarGameField.php');
 
 class WarGamePlayer
 {
+    private array $hand = [];
+    private array $WarGamePlayers = [];
+    private array $fieldCards = []; // 勝ちカードを一時的に保存する場札
+
+
     public function __construct(private string $name)
     {
       $this->name = $name;
     }
 
-    //カードをプレーヤーに均等に配布(親が担当)
-    public function dealCards(WarGameDeck $deck, int $playersCount, int $dealerIndex): array
+    public function getName(): string
     {
-       // 各プレーヤーの手札を初期化
-      $cardsInHand = array_fill(0, $playersCount, []);
-       // デッキからカードの配列を一度取得
-      $deckCards = $deck->getCards();
-      //カードを配布
-      while (count($deckCards) > 0) {
-        for ($i = 0; $i < $playersCount; $i++) {
-          if (!empty($deckCards)){
-            $playerIndex = ($dealerIndex + $i) % $playersCount;
-            $cardsInHand[$playerIndex][] = array_shift($deckCards);
-          }
+        return $this->name;
+    }
+
+        // 手札にカードを追加するメソッド
+    public function addCardToHand($card)
+    {
+        $this->hand[] = $card;
+    }
+
+    public function getHand(): array
+    {
+        return $this->hand;
+    }
+
+    // 手札からカードを1枚プレイするメソッド
+    public function playCard()
+    {
+        if (!empty($this->hand)) {
+            return array_shift($this->hand); //手札束の一番上のカードを一枚引いて，フィールドに置く
         }
-      }
-      return $cardsInHand;
+        return null; // 手札が空の場合はnullを返す
     }
 
-    //カードをフィールドに表示する
-    public function displayCard()
+   // 手札が空になった時に場札を手札に移動するメソッド
+    public function refillHandFromField()
     {
-      // 表示ロジックを実装
-      //手札束の一番上のカードを、場にオモテ向きに置きます。
-      //手札からカードを一枚引く（表示するにはゲームクラス）
-
-      //条件分岐，一番強い数値が複数出た場合、もう一度手札からカードを出します。
-      //同じ数字が続いたら、勝ち負けが決まるまでカードを出します。
-
-      //そして、勝ったプレイヤーが場札をもらいます。（もらう場札のカードはフィールドクラスで実装）
+        if (empty($this->hand) && !empty($this->fieldCards)) {
+            $this->hand = $this->fieldCards;
+            $this->fieldCards = [];
+        }
     }
 
+     // 場札にカードを追加するメソッド
+    public function addFieldCard($card)
+    {
+        $this->fieldCards[] = $card;
+    }
 
 }
